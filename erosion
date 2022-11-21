@@ -1,0 +1,125 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# import image
+img = cv2.resize(cv2.imread('car.jpg', 0), (500,500))
+img2 = cv2.resize(cv2.imread('wow.jpg', 0), (500,500))
+
+# tool box
+# kernel = np.ones((5,5),np.uint8)
+# erosion = cv2.erode(img,kernel,iterations = -1)
+
+# convert image to black and white scale
+(thresh, bw) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY)
+(thresh, bw2) = cv2.threshold(img2, 128, 255, cv2.THRESH_BINARY)
+# print(bw)
+
+# create kernel
+ker = np.full((5,5), 255)
+# print(ker)
+
+# Erosion
+def erofil(image, kernel):
+    # image = np.array((image))
+    image = np.pad(image, pad_width= 2, mode= 'edge')
+    # kernel = np.array((kernel))
+    result = np.zeros((image.shape[0], image.shape[1]))
+
+    for u in range(image.shape[0]-4):
+        for v in range(image.shape[1]-4):
+            a = image[u:u+5, v:v+5]
+            # print(len(a))
+            if (a.all() == kernel.all()):
+                result[u][v] = 255    
+            else:
+                result[u][v] = 0
+
+    return result.astype(np.uint8)
+
+# dilation
+def difil(image, kernel):
+    # image = np.array((image))
+    image = np.pad(image, pad_width= 2, mode= 'edge')
+    # kernel = np.array((kernel))
+    result = np.zeros((image.shape[0], image.shape[1]))
+
+    for u in range(image.shape[0]-4):
+        for v in range(image.shape[1]-4):
+            a = image[u:u+5, v:v+5]
+            # print(len(a))
+            if (a.any() == kernel.any()):
+                result[u][v] = 255    
+            else:
+                result[u][v] = 0
+
+    return result.astype(np.uint8)
+
+# condition checking
+erosion = erofil(bw, ker)
+dilation = difil(bw, ker)
+
+erosion2 = erofil(bw2, ker)
+dilation2 = difil(bw2, ker)
+
+open = difil(erofil(bw, ker), ker)
+close = erofil(difil(bw, ker), ker)
+
+# PLOT AREA
+plt.figure(1)
+plt.subplot(221)
+plt.title('Original Image')
+plt.imshow(img2, cmap='gray')
+plt.axis('off')
+plt.subplot(222)
+plt.title('Black and White Image')
+plt.imshow(bw2, cmap='gray')
+plt.axis('off')
+plt.subplot(223)
+plt.title('Erosion Filter')
+plt.imshow(erosion2, cmap='gray')
+plt.axis('off')
+plt.subplot(224)
+plt.title('Dilation Filter')
+plt.imshow(dilation2, cmap='gray')
+plt.axis('off')
+
+plt.figure(2)
+plt.subplot(221)
+plt.title('Original Image')
+plt.imshow(img, cmap='gray')
+plt.axis('off')
+plt.subplot(222)
+plt.title('Black and White Image')
+plt.imshow(bw, cmap='gray')
+plt.axis('off')
+plt.subplot(223)
+plt.title('Erosion Filter')
+plt.imshow(erosion, cmap='gray')
+plt.axis('off')
+plt.subplot(224)
+plt.title('Dilation Filter')
+plt.imshow(dilation, cmap='gray')
+plt.axis('off')
+
+plt.figure(3)
+plt.subplot(221)
+plt.title('Original Image')
+plt.imshow(img, cmap='gray')
+plt.axis('off')
+plt.subplot(222)
+plt.title('Black and White Image')
+plt.imshow(bw, cmap='gray')
+plt.axis('off')
+plt.subplot(223)
+plt.title('Opening Filter')
+plt.imshow(open, cmap='gray')
+plt.axis('off')
+plt.subplot(224)
+plt.title('Closing Filter')
+plt.imshow(close, cmap='gray')
+plt.axis('off')
+
+plt.show()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
